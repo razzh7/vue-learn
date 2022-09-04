@@ -135,7 +135,6 @@ export function set(target, key, val) {
   return val
 }
 
-/***************** 新增 ******************* */
 export function del(target, key) {
   if (Array.isArray(target)) {
     target.splice(key, 1)
@@ -151,4 +150,3 @@ export function del(target, key) {
   ob.dep.notify()
   return target[key]
 }
-/***************** 新增 ******************* */

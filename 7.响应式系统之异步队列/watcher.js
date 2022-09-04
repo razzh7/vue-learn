@@ -1,12 +1,22 @@
 import Dep, { pushTarget, popTarget } from './dep'
+import { queueWatcher } from './scheduler'
 
+/************** 新增 ********** */
+let uid = 0
+/************** 新增 ********** */
 export default class Watcher {
-  constructor(Fn) {
+  constructor(Fn, options) {
     this.getter = Fn
     this.deps = []
     this.newDeps = []
     this.depIds = new Set()
     this.newDepIds = new Set()
+    /************** 新增 ********** */
+    this.id = ++uid // uid for batching
+    if (options) {
+      this.sync = !!options.sync
+    }
+    /************** 新增 ********** */
     this.get()
   }
 
@@ -61,6 +71,12 @@ export default class Watcher {
   }
 
   update() {
-    this.run()
+    if (this.sync) {
+      this.run()
+    } else {
+      /************** 新增 ********** */
+      queueWatcher(this)
+      /************** 新增 ********** */
+    }
   }
 }

@@ -11,12 +11,10 @@ export default class Watcher {
     this.newDeps = []
     this.depIds = new Set()
     this.newDepIds = new Set()
-    /************** 新增 ********** */
     this.id = ++uid // uid for batching
     if (options) {
       this.sync = !!options.sync
     }
-    /************** 新增 ********** */
     this.get()
   }
 

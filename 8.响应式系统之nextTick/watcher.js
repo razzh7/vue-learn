@@ -1,9 +1,7 @@
 import Dep, { pushTarget, popTarget } from './dep'
 import { queueWatcher } from './scheduler'
 
-/************** 新增 ********** */
 let uid = 0
-/************** 新增 ********** */
 export default class Watcher {
   constructor(Fn, options) {
     this.getter = Fn

@@ -2,7 +2,7 @@ import babel from 'rollup-plugin-babel'
 import serve from 'rollup-plugin-serve'
 import commonjs from 'rollup-plugin-commonjs'
 const path = require('path')
-const currentPath = '8.响应式系统之nextTick'
+const currentPath = '9.响应式系统之watch'
 
 export default {
   input: `./${currentPath}/index.js`,

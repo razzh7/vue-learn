@@ -1,15 +1,21 @@
 import { observe } from './observer'
-import Watcher from './watcher'
+import { initWatch } from './state'
 
-const data = {
-  brand: 'Ford',
-  displacement: '2t'
+const options = {
+  data:{
+    car: {
+      brand: 'Ford'
+    }
+  },
+  watch: {
+    'car.brand': function(newValue, oldValue) { // key值为字符串
+      console.log('新值', newValue)
+      console.log('旧值', oldValue)
+    }
+  }
 }
-const updateComponent = () => {
-  console.log('收集依赖', data.brand)
-}
-observe(data)
-new Watcher(updateComponent)
-data.brand = 'Benz'
-data.brand = 'Cadillac'
-data.brand = 'Audi'
+observe(options.data)
+// debugger
+initWatch(options.data, options.watch)
+
+options.data.car.brand = 'Benz'

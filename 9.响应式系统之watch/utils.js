@@ -43,7 +43,7 @@ export function parsePath(path) {
       if (!obj) {
         return
       }
-      obj = obj[segments[i]]
+      obj = obj[segments[i]] // 收集依赖
     }
     return obj
   }

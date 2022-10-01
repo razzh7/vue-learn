@@ -1,13 +1,26 @@
 import Dep, { pushTarget, popTarget } from './dep'
+import { queueWatcher } from './scheduler'
+import { parsePath } from './utils'
 
+let uid = 0
 export default class Watcher {
-  constructor(Fn) {
-    this.getter = Fn
+  constructor(data, expOrFn, cb, options) {
+    this.data = data
+    this.cb = cb // watch的回调函数
     this.deps = []
     this.newDeps = []
     this.depIds = new Set()
     this.newDepIds = new Set()
-    this.get()
+    this.id = ++uid // uid for batching
+    if (options) {
+      this.sync = !!options.sync
+    }
+    if (typeof expOrFn === 'function') {
+      this.getter = expOrFn
+    } else {
+      this.getter = parsePath(expOrFn)
+    }
+    this.value = this.get()
   }
 
   get() {
@@ -16,12 +29,13 @@ export default class Watcher {
     pushTarget(this)
     let value
     try {
-      value = this.getter()
+      value = this.getter.call(this.data, this.data)
     } catch (e) {
       throw e
+    } finally {
+      popTarget()
+      this.cleanupDeps()
     }
-    popTarget()
-    this.cleanupDeps()
     return value
   }
 
@@ -57,10 +71,22 @@ export default class Watcher {
   }
 
   run() {
-    this.get()
+    debugger
+    let value = this.get()
+    // 新值value 和旧值 this.value 不一样时，触发 watch 回调
+    if (value !== this.value) {
+      // 设置新值
+      const oldValue = this.value
+      this.value = value
+      this.cb.call(this.data, value, oldValue)
+    }
   }
 
   update() {
-    this.run()
+    if (this.sync) {
+      this.run()
+    } else {
+      queueWatcher(this)
+    }
   }
 }

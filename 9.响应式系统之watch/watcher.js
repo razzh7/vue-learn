@@ -15,11 +15,9 @@ export default class Watcher {
     if (options) {
       this.sync = !!options.sync
     }
-    this.dirty = this.lazy
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
-      // debugger
       this.getter = parsePath(expOrFn)
     }
     this.value = this.get()
@@ -74,7 +72,7 @@ export default class Watcher {
 
   run() {
     let value = this.get()
-    // 新值value 和旧值 this.value 不一样时，触发 watch 回调
+    // 新值 value 和旧值 this.value 不一样时，触发 watch 回调
     if (value !== this.value) {
       // 设置新值
       const oldValue = this.value

@@ -2,7 +2,7 @@ import babel from 'rollup-plugin-babel'
 import serve from 'rollup-plugin-serve'
 import commonjs from 'rollup-plugin-commonjs'
 const path = require('path')
-const currentPath = '对比测试'
+const currentPath = '10.响应式系统之immediate和deep'
 
 export default {
   input: `./${currentPath}/index.js`,
@@ -18,7 +18,7 @@ export default {
     }),
     serve({
       open: true,
-      port: 8787,
+      port: 8785,
       contentBase: '',
       openPage: '/index.html'
     }),

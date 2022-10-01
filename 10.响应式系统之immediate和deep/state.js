@@ -23,10 +23,8 @@ function createWatcher(data, expOrFn, handler, options) {
 }
 
 export function $watch(data, expOrFn, handler, options) {
-  const watcher = new Watcher(data, expOrFn, handler)
-  /******************* 新增 ************** */
+  const watcher = new Watcher(data, expOrFn, handler, options)
   if (options.immediate) {
     handler.call(data, watcher.value)
   }
-  /******************* 新增 ************** */
 }

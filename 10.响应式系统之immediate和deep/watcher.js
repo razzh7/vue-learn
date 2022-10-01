@@ -1,6 +1,7 @@
 import Dep, { pushTarget, popTarget } from './dep'
 import { queueWatcher } from './scheduler'
 import { parsePath } from './utils'
+import { traverse } from './traverse'
 
 let uid = 0
 export default class Watcher {
@@ -14,6 +15,9 @@ export default class Watcher {
     this.id = ++uid // uid for batching
     if (options) {
       this.sync = !!options.sync
+  /******************* 新增 ************** */
+      this.deep = !!options.deep // 深度收集依赖选项
+  /******************* 新增 ************** */
     }
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
@@ -33,6 +37,14 @@ export default class Watcher {
     } catch (e) {
       throw e
     } finally {
+  /******************* 新增 ************** */
+      if (this.deep) {
+        // 深度递归对象/数组
+        // 目的是触发 get 函数收集依赖，
+        // 在修改值时触发目标 set 函数，dep中就有对应 watcher 来更新视图
+        traverse(value)
+      }
+  /******************* 新增 ************** */
       popTarget()
       this.cleanupDeps()
     }
@@ -72,8 +84,8 @@ export default class Watcher {
 
   run() {
     let value = this.get()
-    // 新值value 和旧值 this.value 不一样时，触发 watch 回调
-    if (value !== this.value) {
+    // 新值 value 和旧值 this.value 不一样时，触发 watch 回调
+    if (value !== this.value || this.deep) {
       // 设置新值
       const oldValue = this.value
       this.value = value

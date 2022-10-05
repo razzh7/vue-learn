@@ -1,12 +1,13 @@
 import Watcher from "./watcher"
 import { isPlainObject } from './utils'
-import { noop } from "./utils/noop";
+import { noop } from "./utils";
+import Dep from "./dep";
 
 const sharedPropertyDefinition = {
   enumerable: true,
   configurable: true,
   get: noop,
-  set: noop,
+  set: noop
 }
 
 export function initWatch(data, watch) {
@@ -31,23 +32,26 @@ function createWatcher(data, expOrFn, handler, options) {
 }
 
 export function $watch(data, expOrFn, handler, options) {
-  const watcher = new Watcher(data, expOrFn, handler)
+  const watcher = new Watcher(data, expOrFn, handler, options)
   if (options.immediate) {
     handler.call(data, watcher.value)
   }
 }
 
 const computedWatcherOptions = { lazy: true }
+
 /**
  * 1. 收集依赖
  * 2. 成为响应式数据
  */
-function initComputed(data, computed) {
+export function initComputed(data, computed) {
   const watchers = data.__computedWatchers = Object.create(null)
 
   for(let key in computed) {
     const userDef = computed[key]
-    const getter = typeof userDef === 'function' ? userDef : userDef.get // 如果computed key 是 function，直接取值，否则拿对象的get
+    const getter = typeof userDef === 'function' 
+      ? userDef 
+      : userDef.get // 如果computed key 是 function，直接取值，否则拿对象的get
     // 订阅 computed watcher
     watchers[key] = new Watcher(
       data,
@@ -56,7 +60,7 @@ function initComputed(data, computed) {
       computedWatcherOptions
     )
     
-    defineComputed(data, key, userDef);
+    defineComputed(data, key, userDef)
   }
 }
 
@@ -72,9 +76,24 @@ function defineComputed(target, key, userDef) {
   }
   Object.defineProperty(target, key, sharedPropertyDefinition)
 }
+
 // 调用 evaluate
+/**
+ * 1. 调用 evaluate
+ * 2. 将计算 watcher 装入到渲染 watcher 中
+ */
 function createComputedGetter(key) {
   return function computedGetter() {
+    const watcher = this._computedWatchers && this._computedWatchers[key]
+    if (watcher) {
+      if (watcher.dirty) {
+        watcher.evaluate()
+      }
+      if (Dep.target) {
+        watcher.depend()
+      }
+    }
 
+    return watcher.value
   }
 }
